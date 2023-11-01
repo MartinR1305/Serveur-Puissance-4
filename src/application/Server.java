@@ -1,20 +1,27 @@
 package application;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
+import controller.ServerController;
+
 public class Server implements AutoCloseable{
 
 	private static ServerSocket serverSocket;
+	private static List<Socket> listClient;
+	private static ServerController serverController;
+	
 	private static boolean serverIsRunning;
 	private static boolean portChange;
+	
 	private static int numPort;
 	private static int nbClient;
-	private static List<Socket> listClient;
 
 	/**
 	 * Constructor for the server with the server
@@ -22,14 +29,15 @@ public class Server implements AutoCloseable{
 	 * @param port
 	 * @throws IOException
 	 */
-	public Server(int port) throws IOException {
+	public Server(int port, ServerController controller) throws IOException {
 		try {
 
 			serverSocket = new ServerSocket(port);
 			numPort = port;
 			nbClient = 0;
-			List<Socket> listClient = new ArrayList<>();
+			listClient = new ArrayList<>();
 			serverIsRunning = false;
+			serverController = controller;
 
 		} catch (IOException IOE) {
 
@@ -72,11 +80,13 @@ public class Server implements AutoCloseable{
 					Socket clientSocket = serverSocket.accept();
 					System.out.println("Client connected : " + clientSocket.getInetAddress());
 					
+					// We add the client and actualize data on server
 					listClient.add(clientSocket);
 					nbClient++;
+					//serverController.actualizeNbClient();
 					
-					//Thread clientThread = new Thread(() -> handleClient(clientSocket));
-					//clientThread.start();
+					Thread clientThread = new Thread(() -> handleClient(clientSocket));
+					clientThread.start();
 					
 				}
 			} catch (IOException IOE) {
@@ -84,6 +94,43 @@ public class Server implements AutoCloseable{
 			}
 		}
 	}
+	
+	/**
+     * Method for read and update data 
+     * @param clientSocket
+     */
+    private void handleClient(Socket clientSocket) {
+        try (
+            BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            PrintWriter writer = new PrintWriter(clientSocket.getOutputStream(), true)
+        ) {
+            //While the server is open -> read messages
+            while (serverIsRunning) {
+                String inputLine = reader.readLine();
+                
+                if (inputLine != null) {
+                    //Help the client to close the thread of reconnection
+                    if (inputLine.equals("STOP")){
+                        writer.println("STOP");
+                        clientSocket.close ();
+                        listClient.remove(clientSocket);
+                        nbClient--;
+                        System.out.println("Client disconnected: " + clientSocket.getInetAddress());
+                    }
+                }
+                else {
+                    clientSocket.close ();
+                    listClient.remove(clientSocket);
+                    nbClient--;
+                    System.out.println("Client disconnected: " + clientSocket.getInetAddress());
+                }
+            }
+
+        } catch (IOException IOE) {
+            System.err.println("Client Disconnected !");
+
+        } 
+    }
 	
 	/**
 	 * Method that allows to change the port of a server
@@ -120,7 +167,7 @@ public class Server implements AutoCloseable{
 		// We recreate a new socket for the server with the new port
 		serverSocket = new ServerSocket(newPort);
 		numPort = newPort;
-		List<Socket> listClient = new ArrayList<>();
+		listClient = new ArrayList<>();
 		
 		System.out.println("Waiting for client connection");
 		

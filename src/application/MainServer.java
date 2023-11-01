@@ -3,6 +3,7 @@ package application;
 import java.io.File;
 import java.io.IOException;
 
+import controller.ServerController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -11,9 +12,11 @@ import javafx.stage.Stage;
 
 public class MainServer extends Application {
 	private Server server;
+	private ServerController serverController;
 
 	public MainServer() throws IOException {
-		server = new Server(8070);
+		serverController = new ServerController();
+		server = new Server(8090, serverController);
 		new Thread(() -> server.start()).start();
 	}
 

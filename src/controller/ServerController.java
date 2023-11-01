@@ -29,10 +29,10 @@ public class ServerController implements Initializable {
 	public void initialize(URL arg0, ResourceBundle arg1) {
 
 		valuePort.setText(String.valueOf(Server.getPort())); 
-		nbPlayersConnected.setText(String.valueOf(Server.getNbClient())); // A mettre à jour
+		nbPlayersConnected.setText(String.valueOf(Server.getNbClient()));
 		
 
-		// Here we take the current address IP in ordre to display it
+		// Here we take the current address IP in order to display it
 		try {
 
 			Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
@@ -67,5 +67,13 @@ public class ServerController implements Initializable {
 		newPort.clear();
 
 		Server.changePort(numPort);
+	}
+	
+	/**
+	 * Method that allows to actualize the client's number on the server
+	 */
+	public void actualizeNbClient() {
+		String newNb = String.valueOf(Server.getNbClient());
+		nbPlayersConnected.setText(newNb);
 	}
 }
