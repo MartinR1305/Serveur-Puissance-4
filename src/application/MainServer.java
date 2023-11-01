@@ -15,7 +15,7 @@ public class MainServer extends Application {
 	public MainServer() throws IOException {
 		
 		System.out.println("Lancement server : ");
-		server = new Server (8080);
+		server = new Server (8090);
 		new Thread (() -> server.start()).start();
 	}
 
