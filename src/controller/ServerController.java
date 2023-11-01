@@ -8,6 +8,7 @@ import java.util.Enumeration;
 import java.util.ResourceBundle;
 
 import application.Server;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -24,13 +25,15 @@ public class ServerController implements Initializable {
 
 	@FXML
 	Button confirm;
+	
+	private static int nbClient;
 
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
 
 		valuePort.setText(String.valueOf(Server.getPort())); 
 		nbPlayersConnected.setText(String.valueOf(Server.getNbClient()));
-		
+		this.updateNbClient();
 
 		// Here we take the current address IP in order to display it
 		try {
@@ -73,7 +76,27 @@ public class ServerController implements Initializable {
 	 * Method that allows to actualize the client's number on the server
 	 */
 	public void actualizeNbClient() {
-		String newNb = String.valueOf(Server.getNbClient());
-		nbPlayersConnected.setText(newNb);
+		nbClient = Server.getNbClient();
+	}
+	
+	 /**
+	 * Method that allows to update the client's number on the server
+	 */
+	public void updateNbClient() {
+	    Thread stateUpdateThread = new Thread(() -> {
+	        while (true) {
+	            try {
+	                Thread.sleep(500);
+	                Platform.runLater(() -> {
+	                	nbPlayersConnected.setText(String.valueOf(nbClient));
+	                });
+	            } catch (InterruptedException e) {
+	                e.printStackTrace();
+	            }
+	        }
+	    });
+
+	    stateUpdateThread.setDaemon(true);
+	    stateUpdateThread.start();
 	}
 }

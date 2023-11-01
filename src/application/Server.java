@@ -15,7 +15,7 @@ public class Server implements AutoCloseable{
 
 	private static ServerSocket serverSocket;
 	private static List<Socket> listClient;
-	private static ServerController serverController;
+	private ServerController serverController;
 	
 	private static boolean serverIsRunning;
 	private static boolean portChange;
@@ -83,7 +83,10 @@ public class Server implements AutoCloseable{
 					// We add the client and actualize data on server
 					listClient.add(clientSocket);
 					nbClient++;
-					//serverController.actualizeNbClient();
+					serverController.actualizeNbClient();
+					
+					PrintWriter writer = new PrintWriter(clientSocket.getOutputStream(), true);
+					writer.println("N" + String.valueOf(nbClient));
 					
 					Thread clientThread = new Thread(() -> handleClient(clientSocket));
 					clientThread.start();
@@ -102,7 +105,7 @@ public class Server implements AutoCloseable{
     private void handleClient(Socket clientSocket) {
         try (
             BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            PrintWriter writer = new PrintWriter(clientSocket.getOutputStream(), true)
+            PrintWriter writer = new PrintWriter(clientSocket.getOutputStream(), true);
         ) {
             //While the server is open -> read messages
             while (serverIsRunning) {
@@ -115,14 +118,16 @@ public class Server implements AutoCloseable{
                         clientSocket.close ();
                         listClient.remove(clientSocket);
                         nbClient--;
-                        System.out.println("Client disconnected: " + clientSocket.getInetAddress());
+                        serverController.actualizeNbClient();
+                        System.out.println("Client disconnected : " + clientSocket.getInetAddress());
                     }
                 }
                 else {
                     clientSocket.close ();
                     listClient.remove(clientSocket);
                     nbClient--;
-                    System.out.println("Client disconnected: " + clientSocket.getInetAddress());
+                    serverController.actualizeNbClient();
+                    System.out.println("Client disconnected : " + clientSocket.getInetAddress());
                 }
             }
 
