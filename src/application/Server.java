@@ -1,185 +1,159 @@
 package application;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Server implements AutoCloseable {
+public class Server implements AutoCloseable{
+
 	private static ServerSocket serverSocket;
-
-	private static boolean isRunning;
+	private static boolean serverIsRunning;
 	private static boolean portChange;
-
-	private static List<Socket> clientConnections;
+	private static int numPort;
+	private static int nbClient;
+	private static List<Socket> listClient;
 
 	/**
-	 * Method Initialize information for start the server
+	 * Constructor for the server with the server
 	 * 
 	 * @param port
 	 * @throws IOException
 	 */
 	public Server(int port) throws IOException {
 		try {
+
 			serverSocket = new ServerSocket(port);
-
-			isRunning = false;
-			clientConnections = new ArrayList<>();
-
-		} catch (IOException e) {
-			System.err.println("Address already in use!");
-			throw e;
-		}
-	}
-
-	/**
-	 * Method for start the server
-	 */
-	public void start() {
-		System.out.println("Waiting for client connections...");
-		isRunning = true;
-
-		// accepts as many client as there are requests
-		while (isRunning) {
-			try {
-				if (!portChange) {
-					Socket clientSocket = serverSocket.accept();
-					System.out.println("Client connected: ");
-
-					clientConnections.add(clientSocket);
-
-					// start a thread for handle clients
-					Thread clientThread = new Thread(() -> handleClient(clientSocket));
-					clientThread.start();
-				}
-
-			} catch (IOException IOE) {
-				System.err.println("Serveur closed !");
-			}
-		}
-	}
-
-	/**
-	 * Method for read and update data
-	 * 
-	 * @param clientSocket
-	 */
-	private void handleClient(Socket clientSocket) {
-		try (BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-				PrintWriter writer = new PrintWriter(clientSocket.getOutputStream(), true)) {
-			// While the server is open -> read messages
-			while (isRunning) {
-				String inputLine = reader.readLine();
-
-				if (inputLine != null) {
-					// Message receive from client (get data for update FXML page)
-					if (inputLine.equals("START")) {
-
-					}
-					// Help the client to close the thread of reconnection
-					else if (inputLine.equals("STOP")) {
-						writer.println("STOP");
-						clientSocket.close();
-						clientConnections.remove(clientSocket);
-					} else {
-						// Scoring and update data
-						sendIntColumn(inputLine);
-
-					}
-				} else {
-					clientSocket.close();
-					clientConnections.remove(clientSocket);
-				}
-			}
+			numPort = port;
+			nbClient = 0;
+			List<Socket> listClient = new ArrayList<>();
+			serverIsRunning = false;
 
 		} catch (IOException IOE) {
-			System.err.println("Client Disconnected !");
 
-		} finally {
-			try {
-				clientSocket.close();
-				clientConnections.remove(clientSocket);
-
-				System.out.println("Client disconnected: " + clientSocket.getInetAddress());
-			} catch (IOException IOE) {
-				System.err.println("Error closing client socket: " + IOE.getMessage());
-			}
+			System.err.println("Address already in use");
+			throw IOE;
 		}
 	}
 
 	/**
-	 * Method using for changing Server ports
+	 * Getter for the port of the server
+	 * 
+	 * @return
+	 */
+	public static int getPort() {
+		return numPort;
+	}
+	
+	/**
+	 * Getter for the client's number of the server
+	 * 
+	 * @return
+	 */
+	public static int getNbClient() {
+		return nbClient;
+	}
+
+	/**
+	 * Method that starts a server
+	 */
+	public void start() {
+		System.out.println("Waiting for client connection");
+		serverIsRunning = true;
+
+		// We accept all connections from clients while the server is running
+		while (serverIsRunning) {
+			try {
+				// We also check that there is not a port's change at the moment
+				if (!portChange) {
+					
+					Socket clientSocket = serverSocket.accept();
+					System.out.println("Client connected : " + clientSocket.getInetAddress());
+					
+					listClient.add(clientSocket);
+					nbClient++;
+					
+					//Thread clientThread = new Thread(() -> handleClient(clientSocket));
+					//clientThread.start();
+					
+				}
+			} catch (IOException IOE) {
+				System.err.println("Server Closed");
+			}
+		}
+	}
+	
+	/**
+	 * Method that allows to change the port of a server
 	 * 
 	 * @param newPort
 	 * @throws IOException
 	 */
-	public static void ChangePort(int newPort) throws IOException {
+	public static void changePort(int newPort) throws IOException {
 		portChange = true;
+		
+		// We close all the connections with clients
+		if (listClient != null) {
 
-		// Close all connections with clients
-		for (Socket clientSocket : clientConnections) {
-			if (clientSocket != null && !clientSocket.isClosed()) {
-				PrintWriter writer = new PrintWriter(clientSocket.getOutputStream(), true);
-				writer.println("STOP");
+			for (Socket clientSocket : listClient) {
 
-				clientSocket.close();
+				// We check if the socket is valid or not
+				if (clientSocket != null && !clientSocket.isClosed()) {
+
+					// Send the message "STOP" to the client
+					PrintWriter writer = new PrintWriter(clientSocket.getOutputStream(), true);
+					writer.println("STOP");
+
+					clientSocket.close();
+				}
 			}
 		}
-
-		// Close socket
+		
+		// We close the server's socket
 		if (serverSocket != null && !serverSocket.isClosed()) {
 			serverSocket.close();
-			System.out.println("Server socket closed.");
+			System.out.println("Closing of the server");
 		}
-
-		// ReCreate a new Socket with new Port
+		
+		// We recreate a new socket for the server with the new port
 		serverSocket = new ServerSocket(newPort);
-		clientConnections = new ArrayList<>();
-
-		System.out.println("Waiting for client connections...");
-
+		numPort = newPort;
+		List<Socket> listClient = new ArrayList<>();
+		
+		System.out.println("Waiting for client connection");
+		
 		portChange = false;
 	}
 
 	/**
-	 * Method for close every connection when application is closing
+	 * Method that allows to close the server and all
+	 * 
+	 * @throws IOException
 	 */
-	@Override
 	public void close() throws IOException {
-		isRunning = false;
+		serverIsRunning = false;
 
-		for (Socket clientSocket : clientConnections) {
-			if (clientSocket != null && !clientSocket.isClosed()) {
-				PrintWriter writer = new PrintWriter(clientSocket.getOutputStream(), true);
-				writer.println("STOP");
+		if (listClient != null) {
+			for (Socket clientSocket : listClient) {
 
-				clientSocket.close();
+				// We check if the socket is valid or not
+				if (clientSocket != null && !clientSocket.isClosed()) {
+
+					// Send the message "STOP" to the client
+					PrintWriter writer = new PrintWriter(clientSocket.getOutputStream(), true);
+					writer.println("STOP");
+
+					clientSocket.close();
+				}
 			}
 		}
 
+		// We close the server's socket
 		if (serverSocket != null && !serverSocket.isClosed()) {
 			serverSocket.close();
-			System.out.println("Server socket closed.");
-		}
-	}
-
-	/**
-	 * Method for update score of employee
-	 * 
-	 * @param messageClient
-	 */
-	private void sendIntColumn(String messageClient) {
-		if (isRunning && !serverSocket.isClosed()) {
-
-			String[] message_sep = messageClient.split(";");
-			System.out.println(message_sep[0]);
-
-			// Send the column played
-
+			System.out.println("Closing of the server");
 		}
 	}
 }

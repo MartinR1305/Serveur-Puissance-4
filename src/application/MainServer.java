@@ -13,10 +13,8 @@ public class MainServer extends Application {
 	private Server server;
 
 	public MainServer() throws IOException {
-		
-		System.out.println("Lancement server : ");
-		server = new Server (8090);
-		new Thread (() -> server.start()).start();
+		server = new Server(8070);
+		new Thread(() -> server.start()).start();
 	}
 
 	/**
@@ -40,16 +38,17 @@ public class MainServer extends Application {
 		}
 	}
 	
+	/**
+	 * Method that allows to close the server correctly
+	 */
 	@Override
-    public void stop() throws IOException {
-       // Clean up and release resources before the application exits
-       System.out.println("Application is about to exit");
-
-       // Close the server
-       if (server != null) {
-           server.close();
-       }
-    }
+	public void stop() throws IOException{
+		System.out.println("Server is about to close");
+		
+		if(server != null) {
+			server.close();
+		}
+	}
 
 	/**
 	 * Main entry point for the JavaFX application
