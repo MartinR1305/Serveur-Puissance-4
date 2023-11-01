@@ -1,6 +1,9 @@
 package controller;
 
+import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.URL;
+import java.util.Enumeration;
 import java.util.ResourceBundle;
 
 import javafx.fxml.FXML;
@@ -22,7 +25,24 @@ public class ServerController implements Initializable {
 
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
-		// TODO Auto-generated method stub
-		
+		try {
+            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+            while (interfaces.hasMoreElements()) {
+                NetworkInterface networkInterface = interfaces.nextElement();
+                // Check if it's a WiFi interface
+                if (networkInterface.getName().startsWith("wlan")) {
+                    Enumeration<InetAddress> addresses = networkInterface.getInetAddresses();
+                    while (addresses.hasMoreElements()) {
+                        InetAddress address = addresses.nextElement();
+                        // Checks if it's a non-looped IPv4 address
+                        if (address.getAddress().length == 4 && !address.isLoopbackAddress()) {
+                        	valueIPAddress.setText(address.getHostAddress());
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }		
 	}
 }
