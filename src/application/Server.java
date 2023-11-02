@@ -127,23 +127,64 @@ public class Server implements AutoCloseable {
 				if (inputLine != null) {
 					// Help the client to close the thread of reconnection
 					if (inputLine.equals("STOP")) {
+						
+						// We tell to the client that he needs to close
 						writer.println("STOP");
+						
+						// We close the close and remove it from the list
 						clientSocket.close();
 						listClient.remove(clientSocket);
 
+						// We actualize data
 						nbClient--;
 						isTwoPlayersConnected = false;
+						
+						// We actualize data for the FXML page
 						serverController.actualizeNbClient();
+						
+						// We notify the other client that the other had left the server
+						if (listClient != null) {
+
+							for (Socket cSocket : listClient) {
+
+								// We check if the socket is valid or not
+								if (cSocket != null && !cSocket.isClosed()) {
+
+									// Send the message "Other Player Left" to the client
+									PrintWriter writ = new PrintWriter(cSocket.getOutputStream(), true);
+									writ.println("Other Player Left");
+								}
+							}
+						}
+						
 						System.out.println("Client disconnected : " + clientSocket.getInetAddress());
 					}
 				} else {
+					// We close the close and remove it from the list
 					clientSocket.close();
 					listClient.remove(clientSocket);
-					
+
+					// We actualize data
 					nbClient--;
 					isTwoPlayersConnected = false;
+					
+					// We actualize data for the FXML page
 					serverController.actualizeNbClient();
-					System.out.println("Client disconnected : " + clientSocket.getInetAddress());
+					
+					// We notify the other client that the other had left the server
+					if (listClient != null) {
+
+						for (Socket cSocket : listClient) {
+
+							// We check if the socket is valid or not
+							if (cSocket != null && !cSocket.isClosed()) {
+
+								// Send the message "Other Player Left" to the client
+								PrintWriter writ = new PrintWriter(cSocket.getOutputStream(), true);
+								writ.println("Other Player Left");
+							}
+						}
+					}
 				}
 			}
 
@@ -199,7 +240,7 @@ public class Server implements AutoCloseable {
 	 */
 	public void updateNotifMsg2PlayersConnected() {
 	    Thread thread = new Thread(() -> {
-	        while (true) {
+	        while (!isTwoPlayersConnected) {
 	            try {
 	                Thread.sleep(500);
 	                Platform.runLater(() -> {
@@ -216,7 +257,6 @@ public class Server implements AutoCloseable {
 										writer = new PrintWriter(clientSocket.getOutputStream(), true);
 										writer.println("2 Players Connected");
 									} catch (IOException e) {
-										// TODO Auto-generated catch block
 										e.printStackTrace();
 									}
 	            				}
@@ -228,7 +268,6 @@ public class Server implements AutoCloseable {
 	            }
 	        }
 	    });
-
 	    thread.setDaemon(true);
 	    thread.start();
 	}
