@@ -8,6 +8,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import controller.ServerController;
 import javafx.application.Platform;
@@ -122,11 +123,11 @@ public class Server implements AutoCloseable {
 				PrintWriter writer = new PrintWriter(clientSocket.getOutputStream(), true);) {
 			// While the server is open -> read messages
 			while (serverIsRunning) {
-				String inputLine = reader.readLine();
+				String read = reader.readLine();
 
-				if (inputLine != null) {
+				if (read != null) {
 					// Help the client to close the thread of reconnection
-					if (inputLine.equals("STOP")) {
+					if (read.equals("STOP")) {
 						
 						// We tell to the client that he needs to close
 						writer.println("STOP");
@@ -233,6 +234,32 @@ public class Server implements AutoCloseable {
 		System.out.println("Waiting for client connection");
 
 		portChange = false;
+	}
+	
+	public void choosePlayerWhoPlaysFirst() {
+		// We choose randomly the player who will start the game
+		Random random = new Random();
+		int playerStartoing = random.nextInt(2);
+		
+		int boucle = 0;
+		
+		for (Socket clientSocket : listClient) {
+
+			// We check if the socket is valid or not
+			if (clientSocket != null && !clientSocket.isClosed()) {
+				if(boucle == playerStartoing) {
+					// Send the message "2 Players Connected" to the clients
+					PrintWriter writer;
+					try {
+						writer = new PrintWriter(clientSocket.getOutputStream(), true);
+						writer.println("You Start");
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+			boucle++;
+		}
 	}
 	
 	 /**
