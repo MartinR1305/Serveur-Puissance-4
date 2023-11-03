@@ -83,7 +83,7 @@ public class Server implements AutoCloseable {
 			try {
 				// We also check that there is not a port's change at the moment
 				if (!portChange) {
-					
+
 					// We accept only two players
 					if (nbClient < 2) {
 
@@ -94,9 +94,9 @@ public class Server implements AutoCloseable {
 						listClient.add(clientSocket);
 						nbClient++;
 						serverController.actualizeNbClient();
-						
+
 						// The party is ready to be launched
-						if(nbClient == 2) {
+						if (nbClient == 2) {
 							isTwoPlayersConnected = true;
 						}
 
@@ -128,10 +128,10 @@ public class Server implements AutoCloseable {
 				if (read != null) {
 					// Help the client to close the thread of reconnection
 					if (read.equals("STOP")) {
-						
+
 						// We tell to the client that he needs to close
 						writer.println("STOP");
-						
+
 						// We close the close and remove it from the list
 						clientSocket.close();
 						listClient.remove(clientSocket);
@@ -139,10 +139,10 @@ public class Server implements AutoCloseable {
 						// We actualize data
 						nbClient--;
 						isTwoPlayersConnected = false;
-						
+
 						// We actualize data for the FXML page
 						serverController.actualizeNbClient();
-						
+
 						// We notify the other client that the other had left the server
 						if (listClient != null) {
 
@@ -157,8 +157,29 @@ public class Server implements AutoCloseable {
 								}
 							}
 						}
-						
+
 						System.out.println("Client disconnected : " + clientSocket.getInetAddress());
+					}
+
+					// Reading a played shot
+					else if (read.matches("\\d+")) { // We check if the message is an integer
+
+						// We notify the other client that the other had played a turn
+						if (listClient != null) {
+
+							for (Socket cSocket : listClient) {
+
+								// We check if the socket is valid or not
+								if (cSocket != null && !cSocket.isClosed()) {
+
+									if (cSocket != clientSocket) {
+										// Send the message "Number Column" to the client
+										PrintWriter writ = new PrintWriter(cSocket.getOutputStream(), true);
+										writ.println(read);
+									}
+								}
+							}
+						}
 					}
 				} else {
 					// We close the close and remove it from the list
@@ -168,10 +189,10 @@ public class Server implements AutoCloseable {
 					// We actualize data
 					nbClient--;
 					isTwoPlayersConnected = false;
-					
+
 					// We actualize data for the FXML page
 					serverController.actualizeNbClient();
-					
+
 					// We notify the other client that the other had left the server
 					if (listClient != null) {
 
@@ -231,72 +252,78 @@ public class Server implements AutoCloseable {
 		numPort = newPort;
 		listClient = new ArrayList<>();
 
-		System.out.println("Waiting for client connection");
+		System.out.println("Waiting for client connection ...");
 
 		portChange = false;
 	}
-	
-	public void choosePlayerWhoPlaysFirst() {
+
+	public void choosePlayerWhoPlaysFirst() throws IOException {
 		// We choose randomly the player who will start the game
 		Random random = new Random();
 		int playerStartoing = random.nextInt(2);
-		
+
 		int boucle = 0;
-		
+
 		for (Socket clientSocket : listClient) {
+			PrintWriter writer;
+			writer = new PrintWriter(clientSocket.getOutputStream(), true);
 
 			// We check if the socket is valid or not
 			if (clientSocket != null && !clientSocket.isClosed()) {
-				if(boucle == playerStartoing) {
-					// Send the message "2 Players Connected" to the clients
-					PrintWriter writer;
-					try {
-						writer = new PrintWriter(clientSocket.getOutputStream(), true);
-						writer.println("You Start");
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
+				if (boucle == playerStartoing) {
+
+					// Send the message "You Start" to the good client
+					writer.println("You Start");
+
+				} else if (boucle != playerStartoing) {
+
+					// Send the message "You Start" to the good client
+					writer.println("Opponent Will Start");
 				}
 			}
 			boucle++;
 		}
 	}
-	
-	 /**
-	 * Method that allows to notify the two players that the party is ready to be launched
+
+	/**
+	 * Method that allows to notify the two players that the party is ready to be
+	 * launched
 	 */
 	public void updateNotifMsg2PlayersConnected() {
-	    Thread thread = new Thread(() -> {
-	        while (!isTwoPlayersConnected) {
-	            try {
-	                Thread.sleep(500);
-	                Platform.runLater(() -> {
-	                	
-	                	if(isTwoPlayersConnected) {
-	            			for (Socket clientSocket : listClient) {
+		Thread thread = new Thread(() -> {
+			while (!isTwoPlayersConnected) {
+				try {
+					Thread.sleep(500);
+					Platform.runLater(() -> {
 
-	            				// We check if the socket is valid or not
-	            				if (clientSocket != null && !clientSocket.isClosed()) {
+						if (isTwoPlayersConnected) {
+							for (Socket clientSocket : listClient) {
 
-	            					// Send the message "2 Players Connected" to the clients
-	            					PrintWriter writer;
+								// We check if the socket is valid or not
+								if (clientSocket != null && !clientSocket.isClosed()) {
+
+									// Send the message "2 Players Connected" to the clients
+									PrintWriter writer;
 									try {
 										writer = new PrintWriter(clientSocket.getOutputStream(), true);
 										writer.println("2 Players Connected");
+
+										choosePlayerWhoPlaysFirst();
+
 									} catch (IOException e) {
 										e.printStackTrace();
 									}
-	            				}
-	            			}
-	                	}
-	                });
-	            } catch (InterruptedException e) {
-	                e.printStackTrace();
-	            }
-	        }
-	    });
-	    thread.setDaemon(true);
-	    thread.start();
+								}
+							}
+						}
+					});
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+		thread.setDaemon(true);
+		thread.start();
 	}
 
 	/**
