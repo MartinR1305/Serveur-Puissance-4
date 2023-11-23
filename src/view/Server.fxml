@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" stylesheets="@../../src/ressources/css/styles.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ServerController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" stylesheets="@../../src/ressources/css/styles.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ServerController">
    <children>
       <Label fx:id="server" layoutX="185.0" layoutY="66.0" text="SERVER" textFill="WHITE">
          <font>
@@ -54,5 +54,10 @@
             <Font name="Verdana Bold" size="14.0" />
          </font>
       </Button>
+      <Label fx:id="msgError" layoutX="139.0" layoutY="355.0" text="You must fill correctly the port !" textFill="RED" visible="false">
+         <font>
+            <Font name="Verdana Italic" size="20.0" />
+         </font>
+      </Label>
    </children>
 </AnchorPane>

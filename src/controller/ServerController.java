@@ -7,6 +7,8 @@ import java.net.URL;
 import java.util.Enumeration;
 import java.util.ResourceBundle;
 
+import javax.swing.SwingUtilities;
+
 import application.Server;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -18,20 +20,21 @@ import javafx.scene.control.TextField;
 public class ServerController implements Initializable {
 
 	@FXML
-	Label server, ipAddress, valueIPAddress, port, valuePort, playersConnected, nbPlayersConnected, labelNewPort;
+	Label server, ipAddress, valueIPAddress, port, valuePort, playersConnected, nbPlayersConnected, labelNewPort,
+			msgError;
 
 	@FXML
 	TextField newPort;
 
 	@FXML
 	Button confirm;
-	
+
 	private static int nbClient;
 
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
 
-		valuePort.setText(String.valueOf(Server.getPort())); 
+		valuePort.setText(String.valueOf(Server.getPort()));
 		nbPlayersConnected.setText(String.valueOf(Server.getNbClient()));
 		this.updateNbClient();
 		this.updateColorNbClient();
@@ -65,65 +68,104 @@ public class ServerController implements Initializable {
 	 * @throws IOException
 	 */
 	public void changeThePort() throws IOException {
+		// We check if the port is not null
+		if (!newPort.getText().isEmpty()) {
+			
+			// We check if the port is correct
+			if (Integer.valueOf(newPort.getText()) > -1 && Integer.valueOf(newPort.getText()) < 65535) {
+				int numPort = Integer.valueOf(newPort.getText());
+				valuePort.setText(newPort.getText());
+				newPort.clear();
 
-		int numPort = Integer.valueOf(newPort.getText());
-		valuePort.setText(newPort.getText());
-		newPort.clear();
+				Server.changePort(numPort);
+			} else {
+				displayMessage(msgError);
+			}
 
-		Server.changePort(numPort);
+		} else {
+			displayMessage(msgError);
+		}
 	}
-	
+
 	/**
 	 * Method that allows to actualize the client's number on the server
 	 */
 	public void actualizeNbClient() {
 		nbClient = Server.getNbClient();
 	}
-	
-	 /**
+
+	/**
+	 * Method that allows to display a message with a thread and to hide if after 3
+	 * seconds
+	 * 
+	 * @param label, the label that we want to display
+	 */
+	public void displayMessage(Label label) {
+		// Create a new thread to manage the wait
+		Thread waitThread = new Thread(new Runnable() {
+			public void run() {
+				try {
+					Thread.sleep(3000);
+					SwingUtilities.invokeLater(new Runnable() {
+						public void run() {
+							// Make label invisible after pause
+							label.setVisible(false);
+						}
+					});
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+
+		label.setVisible(true);
+		waitThread.start();
+	}
+
+	/**
 	 * Method that allows to update the client's number on the server
 	 */
 	public void updateNbClient() {
-	    Thread stateUpdateThread = new Thread(() -> {
-	        while (true) {
-	            try {
-	                Thread.sleep(500);
-	                Platform.runLater(() -> {
-	                	nbPlayersConnected.setText(String.valueOf(nbClient));
-	                });
-	            } catch (InterruptedException e) {
-	                e.printStackTrace();
-	            }
-	        }
-	    });
+		Thread stateUpdateThread = new Thread(() -> {
+			while (true) {
+				try {
+					Thread.sleep(500);
+					Platform.runLater(() -> {
+						nbPlayersConnected.setText(String.valueOf(nbClient));
+					});
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		});
 
-	    stateUpdateThread.setDaemon(true);
-	    stateUpdateThread.start();
+		stateUpdateThread.setDaemon(true);
+		stateUpdateThread.start();
 	}
-	
-	 /**
+
+	/**
 	 * Method that allows to update the color of the label numberClient
 	 */
 	public void updateColorNbClient() {
-	    Thread thread = new Thread(() -> {
-	        while (true) {
-	            try {
-	                Thread.sleep(500);
-	                Platform.runLater(() -> {
-	                	if(nbClient < 2) {
-	                		nbPlayersConnected.setStyle("-fx-text-fill: red;");
-	                	}
-	                	
-	                	else if (nbClient == 2) {
-	                		nbPlayersConnected.setStyle("-fx-text-fill: green;");
-	                	}
-	                });
-	            } catch (InterruptedException e) {
-	                e.printStackTrace();
-	            }
-	        }
-	    });
-	    thread.setDaemon(true);
-	    thread.start();
+		Thread thread = new Thread(() -> {
+			while (true) {
+				try {
+					Thread.sleep(500);
+					Platform.runLater(() -> {
+						if (nbClient < 2) {
+							nbPlayersConnected.setStyle("-fx-text-fill: red;");
+						}
+
+						else if (nbClient == 2) {
+							nbPlayersConnected.setStyle("-fx-text-fill: green;");
+						}
+					});
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+		thread.setDaemon(true);
+		thread.start();
 	}
 }
