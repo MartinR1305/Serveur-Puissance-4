@@ -34,6 +34,7 @@ public class ServerController implements Initializable {
 		valuePort.setText(String.valueOf(Server.getPort())); 
 		nbPlayersConnected.setText(String.valueOf(Server.getNbClient()));
 		this.updateNbClient();
+		this.updateColorNbClient();
 
 		// Here we take the current address IP in order to display it
 		try {
@@ -98,5 +99,31 @@ public class ServerController implements Initializable {
 
 	    stateUpdateThread.setDaemon(true);
 	    stateUpdateThread.start();
+	}
+	
+	 /**
+	 * Method that allows to update the color of the label numberClient
+	 */
+	public void updateColorNbClient() {
+	    Thread thread = new Thread(() -> {
+	        while (true) {
+	            try {
+	                Thread.sleep(500);
+	                Platform.runLater(() -> {
+	                	if(nbClient < 2) {
+	                		nbPlayersConnected.setStyle("-fx-text-fill: red;");
+	                	}
+	                	
+	                	else if (nbClient == 2) {
+	                		nbPlayersConnected.setStyle("-fx-text-fill: green;");
+	                	}
+	                });
+	            } catch (InterruptedException e) {
+	                e.printStackTrace();
+	            }
+	        }
+	    });
+	    thread.setDaemon(true);
+	    thread.start();
 	}
 }

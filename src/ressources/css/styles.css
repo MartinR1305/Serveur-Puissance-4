@@ -1,0 +1,34 @@
+.root {
+	-fx-background-color: black;
+    -fx-border-color: white;
+    -fx-border-width: 1.0px;
+}
+
+/* --------------------------------------------- BUTTON -------------------------------------------------------------------------------------  */
+
+.button {
+    -fx-background-color: white; 
+    -fx-text-fill: black; 
+    -fx-background-radius: 10.0px;
+    -fx-border-radius: 10.0px;
+    -fx-border-color: white;
+}
+
+.button:hover {
+   		-fx-background-color: black;
+   		-fx-text-fill: white;
+   		-fx-border-color: black;
+}
+
+/* ---------------------------------------------------------------- TEXTFIELD ----------------------------------------------------------------- */
+
+/* Style de base pour les TextField */
+.text-field {
+	-fx-font-size: 20px;
+    -fx-background-color: white; /* Couleur de fond */
+    -fx-border-color: white; /* Couleur de bordure */
+    -fx-font-family: Verdana; /* Police de caractères */
+    -fx-padding: 5 5 5 5; /* Espacement interne */
+    -fx-background-radius: 10 10 10 10; /* Coins arrondis */
+    -fx-border-radius: 10 10 10 10;
+}

@@ -6,52 +6,52 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ServerController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" stylesheets="@../../src/ressources/css/styles.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ServerController">
    <children>
-      <Label fx:id="server" layoutX="231.0" layoutY="51.0" text="Server">
+      <Label fx:id="server" layoutX="185.0" layoutY="66.0" text="SERVER" textFill="WHITE">
          <font>
-            <Font size="50.0" />
+            <Font name="Verdana Bold" size="50.0" />
          </font>
       </Label>
-      <Label fx:id="ipAddress" layoutX="88.0" layoutY="164.0" text="Server's IP Address :">
+      <Label fx:id="ipAddress" layoutX="148.0" layoutY="174.0" text="IP Address :" textFill="WHITE">
          <font>
-            <Font size="24.0" />
+            <Font name="Verdana" size="20.0" />
          </font>
       </Label>
-      <Label fx:id="port" layoutX="88.0" layoutY="200.0" text="Server's Port :">
+      <Label fx:id="port" layoutX="234.0" layoutY="207.0" text="Port :" textFill="WHITE">
          <font>
-            <Font size="24.0" />
+            <Font name="Verdana" size="20.0" />
          </font>
       </Label>
-      <Label fx:id="playersConnected" layoutX="88.0" layoutY="235.0" text="Player Connected :">
+      <Label fx:id="playersConnected" layoutX="181.0" layoutY="240.0" text="Players Connected :" textFill="WHITE">
          <font>
-            <Font size="24.0" />
+            <Font name="Verdana" size="20.0" />
          </font>
       </Label>
-      <Label fx:id="valueIPAddress" layoutX="313.0" layoutY="164.0" text="IP Address">
+      <Label fx:id="valueIPAddress" layoutX="275.0" layoutY="174.0" text="100.100.100.100" textFill="#fffb00">
          <font>
-            <Font size="24.0" />
+            <Font name="Verdana" size="20.0" />
          </font>
       </Label>
-      <Label fx:id="valuePort" layoutX="241.0" layoutY="200.0" text=" Port">
+      <Label fx:id="valuePort" layoutX="294.0" layoutY="207.0" text="Port" textFill="#fffb00">
          <font>
-            <Font size="24.0" />
+            <Font name="Verdana" size="20.0" />
          </font>
       </Label>
-      <Label fx:id="nbPlayersConnected" layoutX="300.0" layoutY="235.0" text="Number players">
+      <Label fx:id="nbPlayersConnected" layoutX="387.0" layoutY="240.0" text="2" textFill="RED">
          <font>
-            <Font size="24.0" />
+            <Font name="Verdana" size="20.0" />
          </font>
       </Label>
-      <TextField fx:id="newPort" layoutX="231.0" layoutY="311.0" prefHeight="35.0" prefWidth="169.0" />
-      <Label fx:id="labelNewPort" layoutX="88.0" layoutY="311.0" text="New Port :">
+      <TextField fx:id="newPort" layoutX="246.0" layoutY="310.0" prefHeight="32.0" prefWidth="107.0" />
+      <Label fx:id="labelNewPort" layoutX="127.0" layoutY="316.0" text="New Port :" textFill="WHITE">
          <font>
-            <Font size="24.0" />
+            <Font name="Verdana" size="20.0" />
          </font>
       </Label>
-      <Button fx:id="confirm" layoutX="401.0" layoutY="311.0" mnemonicParsing="false" onAction="#changeThePort" prefHeight="35.0" prefWidth="70.0" text="Confirm">
+      <Button fx:id="confirm" layoutX="364.0" layoutY="310.0" mnemonicParsing="false" onAction="#changeThePort" prefHeight="38.0" prefWidth="107.0" text="CONFIRM">
          <font>
-            <Font size="14.0" />
+            <Font name="Verdana Bold" size="14.0" />
          </font>
       </Button>
    </children>
