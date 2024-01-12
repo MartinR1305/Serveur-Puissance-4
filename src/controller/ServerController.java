@@ -31,6 +31,9 @@ public class ServerController implements Initializable {
 
 	private static int nbClient;
 
+	/**
+	 * Method that will be called when the FXML file is opened
+	 */
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
 
@@ -70,7 +73,7 @@ public class ServerController implements Initializable {
 	public void changeThePort() throws IOException {
 		// We check if the port is not null
 		if (!newPort.getText().isEmpty()) {
-			
+
 			// We check if the port is correct
 			if (Integer.valueOf(newPort.getText()) > -1 && Integer.valueOf(newPort.getText()) < 65535) {
 				int numPort = Integer.valueOf(newPort.getText());
@@ -98,7 +101,7 @@ public class ServerController implements Initializable {
 	 * Method that allows to display a message with a thread and to hide if after 3
 	 * seconds
 	 * 
-	 * @param label, the label that we want to display
+	 * @param label : The label that we want to display
 	 */
 	public void displayMessage(Label label) {
 		// Create a new thread to manage the wait

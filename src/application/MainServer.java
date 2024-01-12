@@ -10,6 +10,9 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+/**
+ * Method that starts the server
+ */
 public class MainServer extends Application {
 	private Server server;
 	private ServerController serverController;
@@ -23,14 +26,15 @@ public class MainServer extends Application {
 	/**
 	 * Starts the application by displaying the main window
 	 * 
-	 * @param primaryStage, main window of the application
+	 * @param primaryStage : Main window of the application
 	 */
 	@Override
 	public void start(Stage primaryStage) {
 		try {
 
 			// Here we start the application
-			Parent root = FXMLLoader.load(getClass().getResource(".." + File.separator + "view" + File.separator + "Server.fxml"));
+			Parent root = FXMLLoader
+					.load(getClass().getResource(".." + File.separator + "view" + File.separator + "Server.fxml"));
 			Scene scene1 = new Scene(root);
 			primaryStage.setTitle("Server");
 			primaryStage.setScene(scene1);
@@ -40,15 +44,15 @@ public class MainServer extends Application {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * Method that allows to close the server correctly
 	 */
 	@Override
-	public void stop() throws IOException{
+	public void stop() throws IOException {
 		System.out.println("Server is about to close");
-		
-		if(server != null) {
+
+		if (server != null) {
 			server.close();
 		}
 	}
@@ -56,7 +60,7 @@ public class MainServer extends Application {
 	/**
 	 * Main entry point for the JavaFX application
 	 * 
-	 * @param args, Command line arguments passed to the application
+	 * @param args : Command line arguments passed to the application
 	 */
 	public static void main(String[] args) {
 		launch(args);

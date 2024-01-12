@@ -29,7 +29,7 @@ public class Server implements AutoCloseable {
 	/**
 	 * Constructor for the server with the server
 	 * 
-	 * @param port
+	 * @param port : Port of the server
 	 * @throws IOException
 	 */
 	public Server(int port, ServerController controller) throws IOException {
@@ -55,7 +55,7 @@ public class Server implements AutoCloseable {
 	/**
 	 * Getter for the port of the server
 	 * 
-	 * @return
+	 * @return numPort : Port of the server
 	 */
 	public static int getPort() {
 		return numPort;
@@ -64,7 +64,7 @@ public class Server implements AutoCloseable {
 	/**
 	 * Getter for the client's number of the server
 	 * 
-	 * @return
+	 * @return nbClient : Client's number of the server
 	 */
 	public static int getNbClient() {
 		return nbClient;
@@ -116,7 +116,7 @@ public class Server implements AutoCloseable {
 	/**
 	 * Method for read and update data
 	 * 
-	 * @param clientSocket
+	 * @param clientSocket : The clientSocket received
 	 */
 	private void handleClient(Socket clientSocket) {
 		try (BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
@@ -218,7 +218,7 @@ public class Server implements AutoCloseable {
 	/**
 	 * Method that allows to change the port of a server
 	 * 
-	 * @param newPort
+	 * @param newPort : New port of the server
 	 * @throws IOException
 	 */
 	public static void changePort(int newPort) throws IOException {
@@ -257,6 +257,11 @@ public class Server implements AutoCloseable {
 		portChange = false;
 	}
 
+	/**
+	 * Method to determinate which player will start the game
+	 * 
+	 * @throws IOException
+	 */
 	public void choosePlayerWhoPlaysFirst() throws IOException {
 		// We choose randomly the player who will start the game
 		Random random = new Random();
